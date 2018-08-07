@@ -9,7 +9,7 @@
 #include <avr/sfr_defs.h>
 #include <avr/delay.h>
 #include "usart.h"
-double desired_position=3.5 ,kp=150,kd=0,ki=0,integral=0, set_speed=500,saturation_value=500;
+double desired_position=3.5 ,kp=120,kd=10,ki=0,integral=0, set_speed=500,saturation_value=500, past_position;
  
 void lsa_check()
 {
@@ -28,6 +28,19 @@ void pwm_init()//16 bit timer atmega128
 	DDRB|=(1<<PINB5 | 1<<PINB6); //motor pwm
 	ICR1=1000;
 }
+/*double weightage_calculation()
+{
+	double summation=0;
+	
+	for(int i=0;i<8;i++)							
+	{
+		if(bit_is_set(PIND,i))						
+		{
+			summation=summation+i;
+		}
+	}
+	return summation;
+}*/
 double ir_reading()
 {
 	double current_position=0 , n=0;
@@ -40,10 +53,11 @@ double ir_reading()
 			n++;
 		}
 	}
+	
 	if(n!=0)
 	return current_position/n;
 	else 
-	return current_position;
+	return past_position;
 }
  double error(double current_position)
 {
@@ -76,6 +90,7 @@ double pid(double current_error)
 	
 	return correction;
 }
+
 void directions(int x)
 {
 	switch(x)
@@ -104,44 +119,61 @@ void me_init()
 	directions(0);
 	
 }
-
+void interrupt_enable()
+{
+	sei();
+	TCCR0=(1<<CS00 | 1<<CS01); //no prescaling
+	TCNT0=0;
+	TIMSK=(1<<TOIE0);
+}
+ISR(TIMER0_OVF_vect)
+{
+	int correction=(int)pid(error(ir_reading()));
+	past_position=ir_reading();
+	 if(correction>=(int)saturation_value)
+	 {
+		 directions(1);		
+		 OCR1A=500;
+		 OCR1B=500;							//hard left
+		 
+		 while(!(bit_is_set(PIND,3)) && !(bit_is_set(PIND,4)));
+		 
+	 }
+	 else if(correction<=-(int)saturation_value)
+	 {
+		 directions(-1);
+		 OCR1A=500;
+		 OCR1B=500;							//hard right
+		 
+		 while(!(bit_is_set(PIND,3)) && !(bit_is_set(PIND,4)));
+		 
+	 }
+	 else
+	 {
+		 OCR1B=set_speed+correction;
+		 OCR1A=set_speed-correction;
+		 directions(0);
+	 }
+	 //OCR1B=set_speed+correction;
+	 //OCR1A=set_speed-correction;
+}
 int main(void)
 {
-   USART_Init(51,0);
+  // USART_Init(51,0);
    pwm_init();
    me_init();
-	int c=0;   
+   interrupt_enable();
 																			
    while(1)
    {
 	   
-	   c=(int)pid(error(ir_reading()));		//OCR1B -right //OCR1A- left
-										   //direction1-left(E7) direction2-right(B0)
-	   OCR1B=set_speed+c;
-	   OCR1A=set_speed-c;
-	   _delay_ms(10);						//pid frequency							
-	  /* if(c==saturation_value)
-	   {
-		   OCR1A=800;
-		   OCR1B=800;							//hard left
-		   directions(1);
-		   while(!(bit_is_set(PIND,3) && bit_is_set(PIND,4)));
-		   goto x;	
-	   }
-	   else if(c==-saturation_value)
-	   {
-		   OCR1A=800;
-		   OCR1B=800;							//hard right
-		   directions(-1);
-		   while(!(bit_is_set(PIND,3) && bit_is_set(PIND,4)));
-		   goto x;	
-	   }
-	   else
-	   {
-		   OCR1B=500+c;
-		   OCR1A=500-c;
-		   directions(0);
-	   }	*/
+	   																				//OCR1B -right //OCR1A- left
+																			        //direction1-left(E7) direction2-right(B0)
+	  
+	   		
+	   
+	 							
+	   
 		   
 		   
 		 /*  USART_TransmitNumber(ir_reading(),0);	

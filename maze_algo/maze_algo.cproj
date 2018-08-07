@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>LF_PID2</AssemblyName>
-    <Name>LF_PID2</Name>
-    <RootNamespace>LF_PID2</RootNamespace>
+    <AssemblyName>maze_algo</AssemblyName>
+    <Name>maze_algo</Name>
+    <RootNamespace>maze_algo</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
