@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>maze_algo</AssemblyName>
-    <Name>maze_algo</Name>
-    <RootNamespace>maze_algo</RootNamespace>
+    <AssemblyName>LF_PID6</AssemblyName>
+    <Name>LF_PID6</Name>
+    <RootNamespace>LF_PID6</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
@@ -123,12 +123,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="main.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="usart.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="usart.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
